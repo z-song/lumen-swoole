@@ -1,0 +1,24 @@
+{
+    "name": "encore/lumen-swoole",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "z-song",
+            "email": "zosong@126.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "ext-swoole" : "1.8.*",
+        "laravel/lumen-framework":"5.2.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Encore\\LumenSwoole\\": "src/"
+        }
+    },
+    "bin": [
+        "swoole"
+    ]
+}
