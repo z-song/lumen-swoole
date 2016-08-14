@@ -13,10 +13,19 @@
         "ext-swoole" : "1.8.*",
         "laravel/lumen-framework":"5.2.*"
     },
+    "require-dev": {
+        "phpunit/phpunit": "4.*",
+        "laravel/lumen": "5.2.*"
+    },
     "autoload": {
         "psr-4": {
             "Encore\\LumenSwoole\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/TestCase.php"
+        ]
     },
     "bin": [
         "swoole"

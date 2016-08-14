@@ -80,6 +80,8 @@ class Server
             $this->httpServer->set($this->options);
         }
 
+        //swoole_set_process_name('master');
+
         $this->httpServer->start();
     }
 

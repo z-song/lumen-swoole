@@ -4,6 +4,10 @@ namespace Encore\LumenSwoole;
 
 class Command
 {
+    protected $pidFile;
+
+    protected $options = [];
+
     public static function main($argv)
     {
         $command = new static;
@@ -33,6 +37,10 @@ class Command
 
     public function getAction($argv)
     {
+        if (count($argv) < 2) {
+            return null;
+        }
+
         if (in_array($argv[1], ['stop', 'reload', 'restart'])) {
             return $argv[1];
         }
@@ -40,6 +48,10 @@ class Command
         return null;
     }
 
+    /**
+     * @param string $action
+     * @return void
+     */
     public function handleAction($action)
     {
         if ($action === 'stop') {
@@ -97,8 +109,6 @@ class Command
      */
     public function stop()
     {
-
-
         posix_kill($this->getPid(), SIGTERM);
 
         usleep(500);
@@ -126,13 +136,13 @@ class Command
      */
     public function restart()
     {
+        $cmd = exec('ps -eo args | grep /swoole | grep -v grep | head -n 1');
+
         $this->stop();
 
         usleep(2000);
 
-        $this->options['daemonize'] = true;
-
-        $this->start();
+        exec($cmd);
     }
 
     /**
@@ -143,8 +153,11 @@ class Command
      */
     protected function getPid()
     {
+        $this->pidFile = sys_get_temp_dir().'/lumen-swoole.pid';
+
         if (!file_exists($this->pidFile)) {
-            throw new \Exception('Server not running.');
+            echo "Server not running.\r\n";
+            exit;
         }
 
         $pid = file_get_contents($this->pidFile);
