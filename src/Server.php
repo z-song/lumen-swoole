@@ -2,6 +2,7 @@
 
 namespace Encore\LumenSwoole;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use swoole_http_server as HttpServer;
 
@@ -134,7 +135,7 @@ class Server
             }
         }
 
-        $this->handleResponse($response, $this->app->dispatch());
+        $this->handleResponse($response, $this->app->dispatch(Request::capture()));
     }
 
     /**

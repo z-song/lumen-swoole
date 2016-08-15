@@ -48,6 +48,10 @@ $app->get('/', function () use ($app) {
     return $app->version();
 });
 
+$app->get('/test', function () {
+    return 'hello world';
+});
+
 $server = new \Encore\LumenSwoole\Server($app);
 
 $server->options(['daemonize' => true])->run();
