@@ -1,14 +1,6 @@
 <?php
 
-class TestCase extends Laravel\Lumen\Testing\TestCase
+class TestCase extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * Creates the application.
-     *
-     * @return \Laravel\Lumen\Application
-     */
-    public function createApplication()
-    {
-        return require __DIR__.'/../vendor/laravel/lumen/bootstrap/app.php';
-    }
+    protected $baseUrl = 'http://localhost:8083';
 }

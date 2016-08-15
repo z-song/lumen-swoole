@@ -32,13 +32,17 @@ class Server
     /**
      * Create a new Server instance.
      *
+     * @param \Laravel\Lumen\Application $app
      * @return Server
      */
-    public function __construct()
+    public function __construct($app = null)
     {
         $this->pidFile = sys_get_temp_dir().'/lumen-swoole.pid';
 
-        $this->app = require $this->basePath('bootstrap/app.php');
+        $this->app = $app;
+        if (is_null($app)) {
+            $this->app = require $this->basePath('bootstrap/app.php');
+        }
     }
 
     /**
@@ -79,8 +83,6 @@ class Server
         if (! empty($this->options)) {
             $this->httpServer->set($this->options);
         }
-
-        //swoole_set_process_name('master');
 
         $this->httpServer->start();
     }

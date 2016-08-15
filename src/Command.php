@@ -55,15 +55,18 @@ class Command
     public function handleAction($action)
     {
         if ($action === 'stop') {
-            return $this->stop();
+            $this->stop();
+            return;
         }
 
         if ($action === 'reload') {
-            return $this->reload();
+            $this->reload();
+            return;
         }
 
         if ($action === 'restart') {
-            return $this->restart();
+            $this->restart();
+            return;
         }
 
         return ;
