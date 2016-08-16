@@ -9,6 +9,9 @@ php:
 
 sudo: false
 
+before_script:
+  - pecl install swoole
+
 install: travis_retry composer install --no-interaction --prefer-source
 
 script: vendor/bin/phpunit

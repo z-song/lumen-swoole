@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=5.5.*",
         "ext-swoole" : "1.8.*",
         "laravel/lumen-framework":"5.2.*"
     },
