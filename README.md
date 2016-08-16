@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/z-song/lumen-swoole.svg?branch=master)](https://travis-ci.org/z-song/lumen-swoole)
 [![StyleCI](https://styleci.io/repos/65545581/shield)](https://styleci.io/repos/65545581)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/z-song/lumen-swoole/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/z-song/lumen-swoole/?branch=master)
 
 Run lumen on swoole.
 
