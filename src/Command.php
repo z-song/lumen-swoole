@@ -190,6 +190,8 @@ class Command
     public static function validOptions()
     {
         return [
+            'hots',
+            'port',
             'reactor_num',
             'worker_num',
             'max_request',
