@@ -154,7 +154,7 @@ class Command
      */
     public function restart()
     {
-        $cmd = exec('ps -eo args | grep /swoole | grep -v grep | head -n 1');
+        $cmd = exec('ps -eo args | grep lumen-swoole | grep -v grep | head -n 1');
 
         $this->stop();
 
