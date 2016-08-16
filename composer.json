@@ -29,6 +29,6 @@
         ]
     },
     "bin": [
-        "swoole"
+        "bin/lumen-swoole"
     ]
 }

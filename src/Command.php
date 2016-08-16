@@ -30,7 +30,10 @@ class Command
             $options = $this->handleArguments($arguments);
         }
 
-        $server = new Server();
+        $host = array_get($options, 'host', 'localhost');
+        $port = array_get($options, 'port', '8083');
+
+        $server = new Server($host, $port);
 
         $server->options($options)->run();
     }
@@ -99,10 +102,20 @@ class Command
             $options['daemonize'] = true;
         }
 
+        if (array_key_exists('-h', $arguments)) {
+            $this->usage();
+        }
+
         return $options;
     }
 
-
+    /**
+     * Show usage.
+     */
+    public function usage()
+    {
+        exit("Usage: ./vendor/bin/lumen-swoole {stop|restart|reload}\r\n");
+    }
 
     /**
      * Stop the server.

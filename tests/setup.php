@@ -48,10 +48,52 @@ $app->get('/', function () use ($app) {
     return $app->version();
 });
 
-$app->get('/test', function () {
+$app->get('test1', function () {
     return 'hello world';
 });
 
-$server = new \Encore\LumenSwoole\Server($app);
+$app->get('test2', function (\Illuminate\Http\Request $request) {
+    return $request->all();
+});
 
-$server->options(['daemonize' => true])->run();
+$app->get('test3', function (\Illuminate\Http\Request $request) {
+    return $request->cookies->all();
+});
+
+$app->post('test4', function (\Illuminate\Http\Request $request) {
+    return $request->all();
+});
+
+$app->post('test5', function (\Illuminate\Http\Request $request) {
+    return $request->cookies->all();
+});
+
+$app->get('test6', function (\Illuminate\Http\Request $request) {
+    return $request->header('foo');
+});
+
+$app->get('test7', function (\Illuminate\Http\Request $request) {
+    return [$request->getUser(), $request->getPassword()];
+});
+
+$app->post('upload', function (\Illuminate\Http\Request $request) {
+    $file = $request->file('file');
+    return [$file->getSize(), $file->getClientOriginalName()];
+});
+
+$app->get('header', function (\Illuminate\Http\Request $request) {
+    return response('', 200, ['foo' => 'hello world']);
+});
+
+$app->get('cookie', function (\Illuminate\Http\Request $request) {
+
+    $response = new Illuminate\Http\Response('Hello World');
+
+    $response->withCookie(new \Symfony\Component\HttpFoundation\Cookie('name', 'hello world', 10));
+
+    return $response;
+});
+
+$server = new \Encore\LumenSwoole\Server();
+
+$server->setApplication($app)->options(['daemonize' => true])->run();

@@ -16,6 +16,16 @@ class Server
     /**
      * @var string
      */
+    protected $host;
+
+    /**
+     * @var string
+     */
+    protected $port;
+
+    /**
+     * @var string
+     */
     protected $pidFile = '';
 
     /**
@@ -33,15 +43,50 @@ class Server
     /**
      * Create a new Server instance.
      *
-     * @param \Laravel\Lumen\Application $app
-     * @return Server
+     * @param string $host
+     * @param string $port
      */
-    public function __construct($app = null)
+    public function __construct($host = 'localhost', $port = '8083')
     {
-        $this->pidFile = sys_get_temp_dir().'/lumen-swoole.pid';
+        $this->host = $host;
+        $this->port = $port;
 
+        $this->pidFile = sys_get_temp_dir().'/lumen-swoole.pid';
+    }
+
+    /**
+     * Set application.
+     *
+     * @param \Laravel\Lumen\Application $app
+     * @return $this
+     */
+    public function setApplication($app)
+    {
         $this->app = $app;
-        if (is_null($app)) {
+
+        return $this;
+    }
+
+    /**
+     * Get application.
+     *
+     * @return \Laravel\Lumen\Application
+     */
+    public function getApplication()
+    {
+        $this->resolveApplication();
+
+        return $this->app;
+    }
+
+    /**
+     * Resolve application.
+     *
+     * @return void
+     */
+    protected function resolveApplication()
+    {
+        if (! $this->app) {
             $this->app = require $this->basePath('bootstrap/app.php');
         }
     }
@@ -57,13 +102,18 @@ class Server
         return getcwd().($path ? '/'.$path : $path);
     }
 
+    /**
+     * Initialize the server.
+     *
+     * @return $this
+     */
     public function initHttpServer()
     {
         if ($this->httpServer) {
             return $this;
         }
 
-        $this->httpServer = new HttpServer('127.0.0.1', 8083);
+        $this->httpServer = new HttpServer($this->host, $this->port);
 
         $this->httpServer->on('Request', [$this, 'onRequest']);
         $this->httpServer->on('Start', [$this, 'onStart']);
@@ -80,6 +130,8 @@ class Server
     public function run()
     {
         $this->initHttpServer();
+
+        $this->resolveApplication();
 
         if (! empty($this->options)) {
             $this->httpServer->set($this->options);
