@@ -13,8 +13,14 @@ composer require encore/lumen-swoole dev-master
 ## Usage
 
 ```
-// run in daemon mode.
+// run server on default host(localhost) and default port(8083).
+vendor/bin/lumen-swoole
+
+// run server in daemon mode.
 vendor/bin/lumen-swoole -d
+
+// specify host and port.
+vendor/bin/lumen-swoole --host=127.0.0.1 --port=88
 
 // stop server
 vendor/bin/lumen-swoole stop
@@ -28,6 +34,8 @@ vendor/bin/lumen-swoole reload
 // run with other options. (see http://wiki.swoole.com/wiki/page/274.html)
 vendor/bin/lumen-swoole --worker_num=4 --backlog=128 --max_request=100 --dispatch_mode=1
 ```
+
+After start server, open http://localhost:8083 in browser.
 
 ## Benchmark
 
