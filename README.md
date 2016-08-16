@@ -1,5 +1,7 @@
 # lumen-swoole
 
+[![Build Status](https://travis-ci.org/z-song/lumen-swoole.svg?branch=master)](https://travis-ci.org/z-song/lumen-swoole)
+
 Run lumen on swoole.
 
 ## Installation
