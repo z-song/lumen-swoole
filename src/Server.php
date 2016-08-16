@@ -58,6 +58,7 @@ class Server
      * Set application.
      *
      * @param \Laravel\Lumen\Application $app
+     *
      * @return $this
      */
     public function setApplication($app)
@@ -86,7 +87,7 @@ class Server
      */
     protected function resolveApplication()
     {
-        if (! $this->app) {
+        if (!$this->app) {
             $this->app = require $this->basePath('bootstrap/app.php');
         }
     }
@@ -94,7 +95,8 @@ class Server
     /**
      * Get the base path for the application.
      *
-     * @param  string|null  $path
+     * @param string|null $path
+     *
      * @return string
      */
     public function basePath($path = null)
@@ -133,7 +135,7 @@ class Server
 
         $this->resolveApplication();
 
-        if (! empty($this->options)) {
+        if (!empty($this->options)) {
             $this->httpServer->set($this->options);
         }
 
@@ -144,6 +146,7 @@ class Server
      * Set http server options.
      *
      * @param array $options
+     *
      * @return $this
      */
     public function options($options = [])
@@ -156,7 +159,7 @@ class Server
     /**
      * On request callback.
      *
-     * @param \swoole_http_request $request
+     * @param \swoole_http_request  $request
      * @param \swoole_http_response $response
      */
     public function onRequest($request, $response)
@@ -197,7 +200,7 @@ class Server
      */
     public function onStart($server)
     {
-        file_put_contents($this->pidFile,  $server->master_pid);
+        file_put_contents($this->pidFile, $server->master_pid);
     }
 
     /**
@@ -214,7 +217,7 @@ class Server
      * Response handler.
      *
      * @param \swoole_http_response $swooleResponse
-     * @param Response $response
+     * @param Response              $response
      *
      * @return void
      */
