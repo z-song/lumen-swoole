@@ -8,7 +8,7 @@ php:
 
 sudo: false
 
-before_script:
+before_install:
   - pecl install swoole
 
 install: travis_retry composer install --no-interaction --prefer-source
