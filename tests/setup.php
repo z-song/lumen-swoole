@@ -78,6 +78,7 @@ $app->get('test7', function (\Illuminate\Http\Request $request) {
 
 $app->post('upload', function (\Illuminate\Http\Request $request) {
     $file = $request->file('file');
+
     return [$file->getSize(), $file->getClientOriginalName()];
 });
 
@@ -86,7 +87,6 @@ $app->get('header', function (\Illuminate\Http\Request $request) {
 });
 
 $app->get('cookie', function (\Illuminate\Http\Request $request) {
-
     $response = new Illuminate\Http\Response('Hello World');
 
     $response->withCookie(new \Symfony\Component\HttpFoundation\Cookie('name', 'hello world', 10));

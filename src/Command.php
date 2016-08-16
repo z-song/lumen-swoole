@@ -10,7 +10,7 @@ class Command
 
     public static function main($argv)
     {
-        $command = new static;
+        $command = new static();
 
         return $command->run($argv);
     }
@@ -20,13 +20,13 @@ class Command
         if ($action = $this->getAction($argv)) {
             $this->handleAction($action);
 
-            return ;
+            return;
         }
 
         $arguments = $this->parseArguments($argv);
         $options = [];
 
-        if (! empty($arguments)) {
+        if (!empty($arguments)) {
             $options = $this->handleArguments($arguments);
         }
 
@@ -41,38 +41,38 @@ class Command
     public function getAction($argv)
     {
         if (count($argv) < 2) {
-            return null;
+            return;
         }
 
         if (in_array($argv[1], ['stop', 'reload', 'restart'])) {
             return $argv[1];
         }
-
-        return null;
     }
 
     /**
      * @param string $action
+     *
      * @return void
      */
     public function handleAction($action)
     {
         if ($action === 'stop') {
             $this->stop();
+
             return;
         }
 
         if ($action === 'reload') {
             $this->reload();
+
             return;
         }
 
         if ($action === 'restart') {
             $this->restart();
+
             return;
         }
-
-        return ;
     }
 
     public function parseArguments($argv)
@@ -120,8 +120,9 @@ class Command
     /**
      * Stop the server.
      *
-     * @return void
      * @throws \Exception
+     *
+     * @return void
      */
     public function stop()
     {
@@ -137,8 +138,9 @@ class Command
     /**
      * Reload the server.
      *
-     * @return void
      * @throws \Exception
+     *
+     * @return void
      */
     public function reload()
     {
@@ -164,8 +166,9 @@ class Command
     /**
      * Get process identifier of this server.
      *
-     * @return bool|string
      * @throws \Exception
+     *
+     * @return bool|string
      */
     protected function getPid()
     {

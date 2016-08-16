@@ -114,9 +114,9 @@ class HttpTest extends TestCase
                 [
                     'name'     => 'file',
                     'filename' => $fileName,
-                    'contents' => fopen($file, 'r')
-                ]
-            ]
+                    'contents' => fopen($file, 'r'),
+                ],
+            ],
         ]);
 
         $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
@@ -137,6 +137,6 @@ class HttpTest extends TestCase
         $result = $this->client->get('cookie');
 
         $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
-        $this->assertContains('hello world', join('', $result->getHeader('Set-Cookie')));
+        $this->assertContains('hello world', implode('', $result->getHeader('Set-Cookie')));
     }
 }
