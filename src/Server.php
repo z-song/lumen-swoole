@@ -21,7 +21,7 @@ class Server
     protected $host = '127.0.0.1';
 
     /**
-     * @var integer
+     * @var int
      */
     protected $port = 8083;
 
@@ -90,8 +90,8 @@ class Server
     /**
      * Create a new Server instance.
      *
-     * @param string  $host
-     * @param integer $port
+     * @param string $host
+     * @param int    $port
      */
     public function __construct($host = '127.0.0.1', $port = 8083)
     {
@@ -272,7 +272,6 @@ class Server
 
     /**
      * Server shutdown event callback.
-     *
      */
     public function onShutdown()
     {
