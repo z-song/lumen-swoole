@@ -21,7 +21,7 @@ class Server
     protected $host = '127.0.0.1';
 
     /**
-     * @var string
+     * @var integer
      */
     protected $port = 8083;
 
@@ -90,8 +90,8 @@ class Server
     /**
      * Create a new Server instance.
      *
-     * @param string $host
-     * @param string $port
+     * @param string  $host
+     * @param integer $port
      */
     public function __construct($host = '127.0.0.1', $port = 8083)
     {
@@ -273,9 +273,8 @@ class Server
     /**
      * Server shutdown event callback.
      *
-     * @param $server
      */
-    public function onShutdown($server)
+    public function onShutdown()
     {
         unlink($this->pidFile);
     }

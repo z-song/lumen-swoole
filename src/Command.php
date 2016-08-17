@@ -89,12 +89,14 @@ class Command
                         $this->host = $value;
                     } else {
                         $this->usage();
+
                         return false;
                     }
                     break;
 
                 case 'help':
                     $this->usage();
+
                     return false;
 
                 case 'p':
@@ -117,6 +119,7 @@ class Command
                 case 'v':
                 case 'version':
                     echo Server::VERSION, "\r\n";
+
                     return false;
 
                 default:
@@ -164,7 +167,6 @@ Examples:
   vendor/bin/lumen-swoole restart
 
 Other options please see http://wiki.swoole.com/wiki/page/274.html.
-
 
 TYPEOTHER;
 
@@ -233,7 +235,7 @@ TYPEOTHER;
      *
      * @throws \Exception
      *
-     * @return bool|string
+     * @return string|false
      */
     protected function getPid()
     {
