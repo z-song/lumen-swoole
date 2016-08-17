@@ -2,11 +2,31 @@
 
 namespace Encore\LumenSwoole;
 
+use Error;
+use ErrorException;
+use Laravel\Lumen\Exceptions\Handler;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Debug\Exception\FatalErrorException;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
+
 class Command
 {
     protected $pidFile;
 
     protected $options = [];
+
+    protected $host = 'localhost';
+
+    protected $port = 8083;
+
+    protected $bootstrap = 'bootstrap/app.php';
+
+    protected $serverOptions = [];
+
+    public function __construct()
+    {
+        $this->registerErrorHandling();
+    }
 
     public static function main($argv)
     {
@@ -17,93 +37,82 @@ class Command
 
     public function run($argv)
     {
-        if ($action = $this->getAction($argv)) {
-            $this->handleAction($action);
+        $this->handleAction($argv);
 
-            return;
-        }
+        $this->handleArguments();
 
-        $arguments = $this->parseArguments($argv);
-        $options = [];
+        $server = new Server($this->host, $this->port);
+        $server->setApplication(require $this->bootstrap);
 
-        if (!empty($arguments)) {
-            $options = $this->handleArguments($arguments);
-        }
-
-        $host = array_get($options, 'host', 'localhost');
-        $port = array_get($options, 'port', '8083');
-
-        $server = new Server($host, $port);
-
-        $server->options($options)->run();
-    }
-
-    public function getAction($argv)
-    {
-        if (count($argv) < 2) {
-            return;
-        }
-
-        if (in_array($argv[1], ['stop', 'reload', 'restart'])) {
-            return $argv[1];
-        }
+        $server->options($this->serverOptions)->run();
     }
 
     /**
-     * @param string $action
+     * @param array $argv
      *
      * @return void
      */
-    public function handleAction($action)
+    public function handleAction($argv)
     {
-        if ($action === 'stop') {
-            $this->stop();
-
-            return;
+        if (count($argv) < 2) {
+            return ;
         }
 
-        if ($action === 'reload') {
-            $this->reload();
+        if (in_array($argv[1], ['stop', 'reload', 'restart'])) {
+            call_user_func([$this, $argv[1]]);
 
-            return;
-        }
-
-        if ($action === 'restart') {
-            $this->restart();
-
-            return;
+            exit;
         }
     }
 
-    public function parseArguments($argv)
+    public function handleArguments()
     {
-        $arguments = array_slice($argv, 1);
+        $serverOptions = array_map(function ($option) {
+            return "$option:";
+        }, Server::$validServerOptions);
 
-        $options = [];
+        $longOptions = array_merge(['host:', 'port:', 'help'], $serverOptions);
 
-        foreach ($arguments as $argument) {
-            if (preg_match('/^--([\w\d_]+)=([\w\d_]+)$/', $argument, $match)) {
-                $options[$match[1]] = $match[2];
+        $options = getopt('dp:h::s:', $longOptions);
+
+        foreach ($options as $option => $value) {
+            switch ($option) {
+                case 'h':
+                case 'host':
+                    if ($value) {
+                        $this->host = $value;
+                    } else {
+                        $this->usage();
+                    }
+                    break;
+
+                case 'help':
+                    $this->usage();
+                    break;
+
+                case 'p':
+                case 'port':
+                    if ($value) {
+                        $this->port = (int) $value;
+                    }
+                    break;
+
+                case 's':
+                    if ($value) {
+                        $this->bootstrap = $value;
+                    }
+                    break;
+
+                case 'd':
+                    $this->serverOptions['daemonize'] = true;
+                    break;
+
+                default:
+                    if (in_array($option, Server::$validServerOptions) && $value) {
+                        $this->serverOptions[$option] = $value;
+                    }
+                    break;
             }
-
-            if (preg_match('/^(-[\w\d_]+)$/', $argument, $match)) {
-                $options[$match[1]] = true;
-            }
-        }
-
-        return $options;
-    }
-
-    public function handleArguments($arguments)
-    {
-        $options = array_only($arguments, static::validOptions());
-
-        if (in_array('-d', $arguments)) {
-            $options['daemonize'] = true;
-        }
-
-        if (array_key_exists('-h', $arguments)) {
-            $this->usage();
         }
 
         return $options;
@@ -126,11 +135,15 @@ class Command
      */
     public function stop()
     {
-        posix_kill($this->getPid(), SIGTERM);
+        $pid = $this->getPid();
+
+        echo "Server is stopping...\r\n";
+
+        posix_kill($pid, SIGTERM);
 
         usleep(500);
 
-        posix_kill($this->getPid(), SIGKILL);
+        posix_kill($pid, SIGKILL);
 
         unlink($this->pidFile);
     }
@@ -160,6 +173,8 @@ class Command
 
         usleep(2000);
 
+        echo "Server is starting...\r\n";
+
         exec($cmd);
     }
 
@@ -172,11 +187,10 @@ class Command
      */
     protected function getPid()
     {
-        $this->pidFile = sys_get_temp_dir().'/lumen-swoole.pid';
+        $this->pidFile = __DIR__.'/../../../../storage/lumen-swoole.pid';
 
         if (!file_exists($this->pidFile)) {
-            echo "Server not running.\r\n";
-            exit;
+            throw new \Exception('The Server is not running.');
         }
 
         $pid = file_get_contents($this->pidFile);
@@ -190,50 +204,77 @@ class Command
         return false;
     }
 
-    public static function validOptions()
+    /**
+     * Set the error handling for the application.
+     *
+     * @return void
+     */
+    protected function registerErrorHandling()
     {
-        return [
-            'hots',
-            'port',
-            'reactor_num',
-            'worker_num',
-            'max_request',
-            'max_conn',
-            'task_worker_num',
-            'task_ipc_mode',
-            'task_max_request',
-            'task_tmpdir',
-            'dispatch_mode',
-            'message_queue_key',
-            'daemonize',
-            'backlog',
-            'log_file',
-            'log_level',
-            'heartbeat_check_interval',
-            'heartbeat_idle_time',
-            'open_eof_check',
-            'open_eof_split',
-            'package_eof',
-            'open_length_check',
-            'package_length_type',
-            'package_max_length',
-            'open_cpu_affinity',
-            'cpu_affinity_ignore',
-            'open_tcp_nodelay',
-            'tcp_defer_accept',
-            'ssl_cert_file',
-            'ssl_method',
-            'user',
-            'group',
-            'chroot',
-            'pipe_buffer_size',
-            'buffer_output_size',
-            'socket_buffer_size',
-            'enable_unsafe_event',
-            'discard_timeout_request',
-            'enable_reuse_port',
-            'ssl_ciphers',
-            'enable_delay_receive',
-        ];
+        error_reporting(-1);
+
+        set_error_handler(function ($level, $message, $file = '', $line = 0) {
+            if (error_reporting() & $level) {
+                throw new ErrorException($message, 0, $level, $file, $line);
+            }
+        });
+
+        set_exception_handler(function ($e) {
+            $this->handleUncaughtException($e);
+        });
+
+        register_shutdown_function(function () {
+            $this->handleShutdown();
+        });
+    }
+
+    /**
+     * Handle an uncaught exception instance.
+     *
+     * @param  \Throwable  $e
+     * @return void
+     */
+    protected function handleUncaughtException($e)
+    {
+        if ($e instanceof Error) {
+            $e = new FatalThrowableError($e);
+        }
+
+        (new Handler())->renderForConsole(new ConsoleOutput, $e);
+    }
+
+    /**
+     * Handle the application shutdown routine.
+     *
+     * @return void
+     */
+    protected function handleShutdown()
+    {
+        if (! is_null($error = error_get_last()) && $this->isFatalError($error['type'])) {
+            $this->handleUncaughtException(new FatalErrorException(
+                $error['message'],
+                $error['type'],
+                0,
+                $error['file'],
+                $error['line']
+            ));
+        }
+    }
+
+    /**
+     * Determine if the error type is fatal.
+     *
+     * @param  int  $type
+     * @return bool
+     */
+    protected function isFatalError($type)
+    {
+        $errorCodes = [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE];
+
+        if (defined('FATAL_ERROR')) {
+            $errorCodes[] = FATAL_ERROR;
+        }
+
+        return in_array($type, $errorCodes);
     }
 }

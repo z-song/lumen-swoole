@@ -3,7 +3,7 @@
 exec(PHP_BINARY.' '.__DIR__.'/setup.php', $output);
 
 register_shutdown_function(function () {
-    $pidFile = sys_get_temp_dir().'/lumen-swoole.pid';
+    $pidFile = __DIR__.'/../vendor/laravel/lumen/storage/lumen-swoole.pid';
     $pid = file_get_contents($pidFile);
 
     posix_kill($pid, SIGTERM);

@@ -41,6 +41,51 @@ class Server
     protected $options = [];
 
     /**
+     * @var array
+     */
+    public static $validServerOptions = [
+        'reactor_num',
+        'worker_num',
+        'max_request',
+        'max_conn',
+        'task_worker_num',
+        'task_ipc_mode',
+        'task_max_request',
+        'task_tmpdir',
+        'dispatch_mode',
+        'message_queue_key',
+        'daemonize',
+        'backlog',
+        'log_file',
+        'log_level',
+        'heartbeat_check_interval',
+        'heartbeat_idle_time',
+        'open_eof_check',
+        'open_eof_split',
+        'package_eof',
+        'open_length_check',
+        'package_length_type',
+        'package_max_length',
+        'open_cpu_affinity',
+        'cpu_affinity_ignore',
+        'open_tcp_nodelay',
+        'tcp_defer_accept',
+        'ssl_cert_file',
+        'ssl_method',
+        'user',
+        'group',
+        'chroot',
+        'pipe_buffer_size',
+        'buffer_output_size',
+        'socket_buffer_size',
+        'enable_unsafe_event',
+        'discard_timeout_request',
+        'enable_reuse_port',
+        'ssl_ciphers',
+        'enable_delay_receive',
+    ];
+
+    /**
      * Create a new Server instance.
      *
      * @param string $host
@@ -50,8 +95,6 @@ class Server
     {
         $this->host = $host;
         $this->port = $port;
-
-        $this->pidFile = sys_get_temp_dir().'/lumen-swoole.pid';
     }
 
     /**
@@ -135,11 +178,33 @@ class Server
 
         $this->resolveApplication();
 
+        $this->pidFile = $this->app->storagePath('lumen-swoole.pid');
+
+        if ($this->serverIsRunning()) {
+            throw new \Exception('The server is already running.');
+        }
+
         if (!empty($this->options)) {
             $this->httpServer->set($this->options);
         }
 
         $this->httpServer->start();
+    }
+
+    /**
+     * Determine if server is running.
+     *
+     * @return bool
+     */
+    public function serverIsRunning()
+    {
+        if (!file_exists($this->pidFile)) {
+            return false;
+        }
+
+        $pid = file_get_contents($this->pidFile);
+
+        return (bool) posix_getpgid($pid);
     }
 
     /**
@@ -151,7 +216,7 @@ class Server
      */
     public function options($options = [])
     {
-        $this->options = $options;
+        $this->options = array_only($options, static::$validServerOptions);
 
         return $this;
     }
