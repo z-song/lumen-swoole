@@ -52,7 +52,7 @@ class Command
     /**
      * @param array $argv
      *
-     * @return boolean
+     * @return bool
      */
     public function handleAction($argv)
     {
