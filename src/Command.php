@@ -55,7 +55,7 @@ class Command
     public function handleAction($argv)
     {
         if (count($argv) < 2) {
-            return ;
+            return;
         }
 
         if (in_array($argv[1], ['stop', 'reload', 'restart'])) {
@@ -231,7 +231,8 @@ class Command
     /**
      * Handle an uncaught exception instance.
      *
-     * @param  \Throwable  $e
+     * @param \Throwable $e
+     *
      * @return void
      */
     protected function handleUncaughtException($e)
@@ -240,7 +241,7 @@ class Command
             $e = new FatalThrowableError($e);
         }
 
-        (new Handler())->renderForConsole(new ConsoleOutput, $e);
+        (new Handler())->renderForConsole(new ConsoleOutput(), $e);
     }
 
     /**
@@ -250,7 +251,7 @@ class Command
      */
     protected function handleShutdown()
     {
-        if (! is_null($error = error_get_last()) && $this->isFatalError($error['type'])) {
+        if (!is_null($error = error_get_last()) && $this->isFatalError($error['type'])) {
             $this->handleUncaughtException(new FatalErrorException(
                 $error['message'],
                 $error['type'],
@@ -264,7 +265,8 @@ class Command
     /**
      * Determine if the error type is fatal.
      *
-     * @param  int  $type
+     * @param int $type
+     *
      * @return bool
      */
     protected function isFatalError($type)
