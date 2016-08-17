@@ -169,7 +169,6 @@ Examples:
 Other options please see http://wiki.swoole.com/wiki/page/274.html.
 
 TYPEOTHER;
-
     }
 
     /**
