@@ -15,7 +15,7 @@ class Command
 
     protected $options = [];
 
-    protected $host = 'localhost';
+    protected $host = '127.0.0.1';
 
     protected $port = 8083;
 
@@ -41,7 +41,9 @@ class Command
             return;
         }
 
-        $this->handleArguments();
+        if (!$this->handleArguments()) {
+            return;
+        }
 
         $server = new Server($this->host, $this->port);
         $server->setApplication(require $this->bootstrap);
@@ -75,9 +77,9 @@ class Command
             return "$option:";
         }, Server::$validServerOptions);
 
-        $longOptions = array_merge(['host:', 'port:', 'help'], $serverOptions);
+        $longOptions = array_merge(['host:', 'port:', 'help', 'version'], $serverOptions);
 
-        $options = getopt('dp:h::s:', $longOptions);
+        $options = getopt('dvp:h::s:', $longOptions);
 
         foreach ($options as $option => $value) {
             switch ($option) {
@@ -87,12 +89,13 @@ class Command
                         $this->host = $value;
                     } else {
                         $this->usage();
+                        return false;
                     }
                     break;
 
                 case 'help':
                     $this->usage();
-                    break;
+                    return false;
 
                 case 'p':
                 case 'port':
@@ -111,6 +114,11 @@ class Command
                     $this->serverOptions['daemonize'] = true;
                     break;
 
+                case 'v':
+                case 'version':
+                    echo Server::VERSION, "\r\n";
+                    return false;
+
                 default:
                     if (in_array($option, Server::$validServerOptions) && $value) {
                         $this->serverOptions[$option] = $value;
@@ -119,7 +127,7 @@ class Command
             }
         }
 
-        return $options;
+        return true;
     }
 
     /**
@@ -127,7 +135,39 @@ class Command
      */
     public function usage()
     {
-        exit("Usage: ./vendor/bin/lumen-swoole {stop|restart|reload}\r\n");
+        $version = Server::VERSION;
+
+        echo <<<TYPEOTHER
+$version
+
+Usage: vendor/bin/lumen-swoole {stop|restart|reload}
+
+  -h <hostname>      Server hostname (default: 127.0.0.1).
+  -p <port>          Server port (default: 6379).
+  -s <script>        Application script.
+  -d <daemon>        Run server in daemon mode.
+  -v <version>       Output version and exit.
+
+  --host             Server hostname (default: 127.0.0.1).
+  --port             Server port (default: 6379).
+  --help             Output this help and exit.
+  --version          Output version and exit.
+
+Examples:
+  vendor/bin/lumen-swoole -d
+  vendor/bin/lumen-swoole -h 127.0.0.1 -p 80 -d
+  vendor/bin/lumen-swoole -h 127.0.0.1 -p 80 -d
+  vendor/bin/lumen-swoole -s path/to/bootstrap/script.php
+
+  vendor/bin/lumen-swoole restart
+  vendor/bin/lumen-swoole reload
+  vendor/bin/lumen-swoole restart
+
+Other options please see http://wiki.swoole.com/wiki/page/274.html.
+
+
+TYPEOTHER;
+
     }
 
     /**
@@ -171,7 +211,13 @@ class Command
      */
     public function restart()
     {
-        $cmd = exec('ps -eo args | grep lumen-swoole | grep -v grep | head -n 1');
+        $pid = $this->getPid();
+
+        $cmd = exec("ps -p $pid -o args | grep lumen-swoole");
+
+        if (empty($cmd)) {
+            throw new \Exception('Cannot find server process.');
+        }
 
         $this->stop();
 
@@ -235,7 +281,7 @@ class Command
     /**
      * Handle an uncaught exception instance.
      *
-     * @param \Throwable $e
+     * @param \Exception $e
      *
      * @return void
      */

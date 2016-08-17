@@ -8,6 +8,8 @@ use swoole_http_server as HttpServer;
 
 class Server
 {
+    const VERSION = 'lumen-swoole 0.1.0';
+
     /**
      * @var \Laravel\Lumen\Application
      */
@@ -16,12 +18,12 @@ class Server
     /**
      * @var string
      */
-    protected $host;
+    protected $host = '127.0.0.1';
 
     /**
      * @var string
      */
-    protected $port;
+    protected $port = 8083;
 
     /**
      * @var string
@@ -91,7 +93,7 @@ class Server
      * @param string $host
      * @param string $port
      */
-    public function __construct($host = 'localhost', $port = '8083')
+    public function __construct($host = '127.0.0.1', $port = 8083)
     {
         $this->host = $host;
         $this->port = $port;

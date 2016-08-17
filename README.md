@@ -15,29 +15,36 @@ composer require encore/lumen-swoole dev-master
 ## Usage
 
 ```
-// run server on default host(localhost) and default port(8083).
-vendor/bin/lumen-swoole
+➜  lumen-v5.2.1 git:(master) vendor/bin/lumen-swoole -h
+lumen-swoole 0.1.0
 
-// run server in daemon mode.
-vendor/bin/lumen-swoole -d
+Usage: vendor/bin/lumen-swoole {stop|restart|reload}
 
-// specify host and port.
-vendor/bin/lumen-swoole --host=127.0.0.1 --port=88
+  -h <hostname>      Server hostname (default: 127.0.0.1).
+  -p <port>          Server port (default: 8083).
+  -s <script>        Application script.
+  -d <daemon>        Run server in daemon mode.
+  -v <version>       Output version and exit.
 
-// stop server
-vendor/bin/lumen-swoole stop
+  --host             Server hostname (default: 127.0.0.1).
+  --port             Server port (default: 8083).
+  --help             Output this help and exit.
+  --version          Output version and exit.
 
-// restart server
-vendor/bin/lumen-swoole restart
+Examples:
+  vendor/bin/lumen-swoole -d
+  vendor/bin/lumen-swoole -h 127.0.0.1 -p 80 -d
+  vendor/bin/lumen-swoole -h 127.0.0.1 -p 80 -d
+  vendor/bin/lumen-swoole -s path/to/bootstrap/script.php
 
-// reload server
-vendor/bin/lumen-swoole reload
+  vendor/bin/lumen-swoole restart
+  vendor/bin/lumen-swoole reload
+  vendor/bin/lumen-swoole restart
 
-// run with other options. (see http://wiki.swoole.com/wiki/page/274.html)
-vendor/bin/lumen-swoole --worker_num=4 --backlog=128 --max_request=100 --dispatch_mode=1
+Other options please see http://wiki.swoole.com/wiki/page/274.html.
 ```
 
-After start server, open http://localhost:8083 in browser.
+After start server, open http://127.0.0.1:8083 in browser.
 
 ## Benchmark
 

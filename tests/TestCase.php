@@ -2,7 +2,7 @@
 
 class TestCase extends \PHPUnit_Framework_TestCase
 {
-    protected $baseUri = 'http://localhost:8083/';
+    protected $baseUri = 'http://127.0.0.1:8083/';
 
     /**
      * @var GuzzleHttp\Client

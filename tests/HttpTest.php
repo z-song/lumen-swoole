@@ -54,7 +54,7 @@ class HttpTest extends TestCase
     {
         $cookie = ['foo' => 'bar', 'baz' => 'fiz'];
 
-        $jar = \GuzzleHttp\Cookie\CookieJar::fromArray($cookie, 'localhost');
+        $jar = \GuzzleHttp\Cookie\CookieJar::fromArray($cookie, '127.0.0.1');
 
         $result = $this->client->get('test3', ['cookies' => $jar]);
 
@@ -76,7 +76,7 @@ class HttpTest extends TestCase
     {
         $cookie = ['foo' => 'bar', 'baz' => 'fiz'];
 
-        $jar = \GuzzleHttp\Cookie\CookieJar::fromArray($cookie, 'localhost');
+        $jar = \GuzzleHttp\Cookie\CookieJar::fromArray($cookie, '127.0.0.1');
 
         $result = $this->client->post('test5', ['cookies' => $jar]);
 
