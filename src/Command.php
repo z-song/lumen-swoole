@@ -37,7 +37,9 @@ class Command
 
     public function run($argv)
     {
-        $this->handleAction($argv);
+        if ($this->handleAction($argv)) {
+            return;
+        }
 
         $this->handleArguments();
 
@@ -50,19 +52,21 @@ class Command
     /**
      * @param array $argv
      *
-     * @return void
+     * @return boolean
      */
     public function handleAction($argv)
     {
         if (count($argv) < 2) {
-            return;
+            return false;
         }
 
         if (in_array($argv[1], ['stop', 'reload', 'restart'])) {
             call_user_func([$this, $argv[1]]);
 
-            exit;
+            return true;
         }
+
+        return false;
     }
 
     public function handleArguments()
