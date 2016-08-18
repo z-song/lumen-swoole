@@ -144,7 +144,7 @@ class HttpTest extends TestCase
     {
         $this->stopServer();
 
-        $this->setExpectedException(GuzzleHttp\Exception\ConnectException::class);
+        $this->setExpectedException(GuzzleHttp\Exception\RequestException::class);
         $this->client->get('test1');
     }
 
