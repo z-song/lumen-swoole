@@ -94,7 +94,7 @@ $app->get('cookie', function (\Illuminate\Http\Request $request) {
     return $response;
 });
 
-$app->get('singleton', function() {
+$app->get('singleton', function () {
     app()->singleton('hello', function () {
         return 'world';
     });
