@@ -2,7 +2,6 @@
 
 namespace Encore\LumenSwoole;
 
-use Illuminate\Container\Container;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Laravel\Lumen\Application;
@@ -124,7 +123,7 @@ class Server
 
         return $this;
     }
-    
+
     /**
      * Set application.
      *
@@ -146,7 +145,7 @@ class Server
      */
     protected function resolveApplication()
     {
-        if (! $this->app) {
+        if (!$this->app) {
             require $this->basePath('bootstrap/app.php');
         }
 
@@ -155,7 +154,7 @@ class Server
 
     protected function snapshotApplication()
     {
-        if (! $this->appSnapshot) {
+        if (!$this->appSnapshot) {
             $this->appSnapshot = clone Application::getInstance();
         }
     }
@@ -259,7 +258,8 @@ class Server
     /**
      * Build global variables.
      *
-     * @param \swoole_http_request  $request
+     * @param \swoole_http_request $request
+     *
      * @return void
      */
     protected function buildGlobals($request)
@@ -296,6 +296,7 @@ class Server
      *
      * @param Response $lumenResponse
      * @param string   $obContents
+     *
      * @return $this
      */
     protected function appendObContents(Response $lumenResponse, $obContents)
@@ -308,6 +309,7 @@ class Server
      *
      * @param Request    $request
      * @param \Exception $e
+     *
      * @return Response
      */
     public function handleLumenException($request, $e)
@@ -320,6 +322,7 @@ class Server
      *
      * @param Request               $request
      * @param \swoole_http_response $response
+     *
      * @return void
      */
     public function handleLumenShutdown($request, $response)

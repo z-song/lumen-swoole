@@ -140,7 +140,7 @@ class Command
     {
         $this->printVersionString();
 
-        print <<<EOT
+        echo <<<'EOT'
 
 Usage: vendor/bin/lumen-swoole {stop|restart|reload}
 
