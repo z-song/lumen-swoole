@@ -138,10 +138,9 @@ class Command
      */
     public function usage()
     {
-        $version = Server::VERSION;
+        $this->printVersionString();
 
-        echo <<<TYPEOTHER
-$version
+        print <<<EOT
 
 Usage: vendor/bin/lumen-swoole {stop|restart|reload}
 
@@ -168,7 +167,12 @@ Examples:
 
 Other options please see http://wiki.swoole.com/wiki/page/274.html.
 
-TYPEOTHER;
+EOT;
+    }
+
+    public function printVersionString()
+    {
+        echo Server::VERSION, "\r\n";
     }
 
     /**
@@ -238,7 +242,9 @@ TYPEOTHER;
      */
     protected function getPid()
     {
-        $this->pidFile = __DIR__.'/../../../../storage/lumen-swoole.pid';
+        $app = require $this->bootstrap;
+
+        $this->pidFile = $app->storagePath('lumen-swoole.pid');
 
         if (!file_exists($this->pidFile)) {
             throw new \Exception('The Server is not running.');

@@ -2,9 +2,13 @@
 
 namespace Encore\LumenSwoole;
 
+use Illuminate\Container\Container;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Laravel\Lumen\Application;
+use Laravel\Lumen\Exceptions\Handler;
 use swoole_http_server as HttpServer;
+use Symfony\Component\Debug\Exception\FatalErrorException;
 
 class Server
 {
@@ -41,6 +45,8 @@ class Server
      * @var array
      */
     protected $options = [];
+
+    protected $appSnapshot = null;
 
     /**
      * @var array
@@ -100,56 +106,6 @@ class Server
     }
 
     /**
-     * Set application.
-     *
-     * @param \Laravel\Lumen\Application $app
-     *
-     * @return $this
-     */
-    public function setApplication($app)
-    {
-        $this->app = $app;
-
-        return $this;
-    }
-
-    /**
-     * Get application.
-     *
-     * @return \Laravel\Lumen\Application
-     */
-    public function getApplication()
-    {
-        $this->resolveApplication();
-
-        return $this->app;
-    }
-
-    /**
-     * Resolve application.
-     *
-     * @return void
-     */
-    protected function resolveApplication()
-    {
-        if (!$this->app) {
-            $this->app = require $this->basePath('bootstrap/app.php');
-        }
-    }
-
-    /**
-     * Get the base path for the application.
-     *
-     * @param string|null $path
-     *
-     * @return string
-     */
-    public function basePath($path = null)
-    {
-        return getcwd().($path ? '/'.$path : $path);
-    }
-
-    /**
      * Initialize the server.
      *
      * @return $this
@@ -168,6 +124,53 @@ class Server
 
         return $this;
     }
+    
+    /**
+     * Set application.
+     *
+     * @param \Laravel\Lumen\Application $app
+     *
+     * @return $this
+     */
+    public function setApplication($app)
+    {
+        $this->app = $app;
+
+        return $this;
+    }
+
+    /**
+     * Resolve application.
+     *
+     * @return void
+     */
+    protected function resolveApplication()
+    {
+        if (! $this->app) {
+            require $this->basePath('bootstrap/app.php');
+        }
+
+        $this->snapshotApplication();
+    }
+
+    protected function snapshotApplication()
+    {
+        if (! $this->appSnapshot) {
+            $this->appSnapshot = clone Application::getInstance();
+        }
+    }
+
+    /**
+     * Get the base path for the application.
+     *
+     * @param string|null $path
+     *
+     * @return string
+     */
+    public function basePath($path = null)
+    {
+        return getcwd().($path ? '/'.$path : $path);
+    }
 
     /**
      * Start the server.
@@ -180,9 +183,9 @@ class Server
 
         $this->resolveApplication();
 
-        $this->pidFile = $this->app->storagePath('lumen-swoole.pid');
+        $this->pidFile = app()->storagePath('lumen-swoole.pid');
 
-        if ($this->serverIsRunning()) {
+        if ($this->isRunning()) {
             throw new \Exception('The server is already running.');
         }
 
@@ -198,7 +201,7 @@ class Server
      *
      * @return bool
      */
-    public function serverIsRunning()
+    public function isRunning()
     {
         if (!file_exists($this->pidFile)) {
             return false;
@@ -231,6 +234,36 @@ class Server
      */
     public function onRequest($request, $response)
     {
+        $this->buildGlobals($request);
+
+        $obContents = '';
+
+        $request = Request::capture();
+
+        register_shutdown_function([$this, 'handleLumenShutdown'], $request, $response);
+
+        ob_start();
+        try {
+            $lumenResponse = Application::getInstance()->dispatch($request);
+            $obContents = ob_get_contents();
+        } catch (\Exception $e) {
+            $lumenResponse = $this->handleLumenException($request, $e);
+        }
+        ob_end_clean();
+
+        $lumenResponse = $this->appendObContents($lumenResponse, $obContents);
+
+        $this->handleResponse($response, $lumenResponse);
+    }
+
+    /**
+     * Build global variables.
+     *
+     * @param \swoole_http_request  $request
+     * @return void
+     */
+    protected function buildGlobals($request)
+    {
         foreach ($request->server as $key => $value) {
             $_SERVER[strtoupper($key)] = $value;
         }
@@ -256,26 +289,50 @@ class Server
                 $_SERVER['HTTP_'.strtoupper($key)] = $value;
             }
         }
-
-        $this->handleResponse($response, $this->app->dispatch(Request::capture()));
     }
 
     /**
-     * Server start event callback.
+     * Append ob contents to response.
      *
-     * @param $server
+     * @param Response $lumenResponse
+     * @param string   $obContents
+     * @return $this
      */
-    public function onStart($server)
+    protected function appendObContents(Response $lumenResponse, $obContents)
     {
-        file_put_contents($this->pidFile, $server->master_pid);
+        return $lumenResponse->setContent($obContents.$lumenResponse->getContent());
     }
 
     /**
-     * Server shutdown event callback.
+     * Handle uncaught exception.
+     *
+     * @param Request    $request
+     * @param \Exception $e
+     * @return Response
      */
-    public function onShutdown()
+    public function handleLumenException($request, $e)
     {
-        unlink($this->pidFile);
+        return (new Handler())->render($request, $e);
+    }
+
+    /**
+     * Handle lumen shutdown.
+     *
+     * @param Request               $request
+     * @param \swoole_http_response $response
+     * @return void
+     */
+    public function handleLumenShutdown($request, $response)
+    {
+        if ($error = error_get_last()) {
+            $lumenResponse = $this->handleLumenException($request, new FatalErrorException(
+                $error['message'], $error['type'], 0, $error['file'], $error['line']
+            ));
+
+            $this->handleResponse($response, $lumenResponse);
+        } else {
+            $this->handleResponse($response, new Response(ob_get_contents()));
+        }
     }
 
     /**
@@ -309,7 +366,27 @@ class Server
             );
         }
 
+        Application::setInstance(clone $this->appSnapshot);
+
         // send content & close
         $swooleResponse->end($response->getContent());
+    }
+
+    /**
+     * Server start event callback.
+     *
+     * @param $server
+     */
+    public function onStart($server)
+    {
+        file_put_contents($this->pidFile, $server->master_pid);
+    }
+
+    /**
+     * Server shutdown event callback.
+     */
+    public function onShutdown()
+    {
+        unlink($this->pidFile);
     }
 }

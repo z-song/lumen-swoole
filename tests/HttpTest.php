@@ -106,8 +106,8 @@ class HttpTest extends TestCase
 
     public function testUploadFile()
     {
-        $file = __DIR__.'/setup.php';
-        $fileName = 'setup.php';
+        $file = __DIR__.'/app.php';
+        $fileName = 'app.php';
 
         $result = $this->client->post('upload', [
             'multipart' => [
@@ -138,5 +138,66 @@ class HttpTest extends TestCase
 
         $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
         $this->assertContains('hello world', implode('', $result->getHeader('Set-Cookie')));
+    }
+
+    public function testStopServer()
+    {
+        $this->stopServer();
+
+        $this->setExpectedException(GuzzleHttp\Exception\ConnectException::class);
+        $this->client->get('test1');
+    }
+
+    public function testStartServer()
+    {
+        $this->startServer();
+
+        usleep(500);
+
+        $result = $this->client->get('test1');
+
+        $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
+        $this->assertEquals('hello world', $result->getBody()->getContents());
+    }
+
+    public function testRestartServer()
+    {
+        $this->stopServer();
+        $this->startServer();
+        usleep(500);
+
+        $result = $this->client->get('test1');
+
+        $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
+        $this->assertEquals('hello world', $result->getBody()->getContents());
+    }
+
+    protected function stopServer()
+    {
+        $pid = $this->getPid();
+
+        posix_kill($pid, SIGTERM);
+        usleep(500);
+        posix_kill($pid, SIGKILL);
+        unlink($this->getPidFile());
+    }
+
+    protected function startServer()
+    {
+        $appPath = __DIR__.'/app.php';
+
+        exec(__DIR__."/../bin/lumen-swoole -s $appPath -d");
+    }
+
+    protected function getPid()
+    {
+        return file_get_contents($this->getPidFile());
+    }
+
+    protected function getPidFile()
+    {
+        $app = require __DIR__.'/app.php';
+
+        return $app->storagePath('lumen-swoole.pid');
     }
 }

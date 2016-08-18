@@ -1,6 +1,8 @@
 {
     "name": "encore/lumen-swoole",
     "type": "library",
+    "description": "lumen-swoole can help you work with lumen and swoole.",
+    "keywords": ["lumen", "swoole", "performance", "framework"],
     "license": "MIT",
     "authors": [
         {

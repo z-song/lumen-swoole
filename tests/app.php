@@ -94,6 +94,4 @@ $app->get('cookie', function (\Illuminate\Http\Request $request) {
     return $response;
 });
 
-$server = new \Encore\LumenSwoole\Server();
-
-$server->setApplication($app)->options(['daemonize' => true])->run();
+return $app;
