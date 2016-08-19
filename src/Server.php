@@ -93,6 +93,13 @@ class Server
     ];
 
     /**
+     * If shutdown function registered.
+     *
+     * @var bool
+     */
+    protected $shutdownFunctionRegistered = false;
+
+    /**
      * Create a new Server instance.
      *
      * @param string $host
@@ -239,7 +246,10 @@ class Server
 
         $request = Request::capture();
 
-        register_shutdown_function([$this, 'handleLumenShutdown'], $request, $response);
+        if (!$this->shutdownFunctionRegistered) {
+            register_shutdown_function([$this, 'handleLumenShutdown'], $request, $response);
+            $this->shutdownFunctionRegistered = true;
+        }
 
         ob_start();
         try {
