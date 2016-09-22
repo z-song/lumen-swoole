@@ -3,11 +3,11 @@
 namespace Encore\LumenSwoole;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Laravel\Lumen\Application;
 use Laravel\Lumen\Exceptions\Handler;
 use swoole_http_server as HttpServer;
 use Symfony\Component\Debug\Exception\FatalErrorException;
+use Symfony\Component\HttpFoundation\Response;
 
 class Server
 {
