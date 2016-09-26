@@ -254,6 +254,7 @@ class Server
         ob_start();
         try {
             $lumenResponse = Application::getInstance()->dispatch($request);
+            $lumenResponse->prepare($request);
             $obContents = ob_get_contents();
         } catch (\Exception $e) {
             $lumenResponse = $this->handleLumenException($request, $e);
