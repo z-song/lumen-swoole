@@ -10,8 +10,7 @@ use Symfony\Component\Debug\Exception\FatalErrorException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class Server
- * @package Encore\LumenSwoole
+ * Class Server.
  */
 class Server
 {
@@ -71,6 +70,7 @@ class Server
      * Valid swoole http server options.
      *
      * @see http://wiki.swoole.com/wiki/page/274.html
+     *
      * @var array
      */
     public static $validServerOptions = [
