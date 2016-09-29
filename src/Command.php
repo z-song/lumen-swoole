@@ -10,8 +10,7 @@ use Symfony\Component\Debug\Exception\FatalErrorException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
- * Class Command
- * @package Encore\LumenSwoole
+ * Class Command.
  */
 class Command
 {
@@ -69,6 +68,7 @@ class Command
      * Main access.
      *
      * @param $argv
+     *
      * @return mixed
      */
     public static function main($argv)
@@ -82,6 +82,7 @@ class Command
      * Run up the server.
      *
      * @param string $argv
+     *
      * @throws \Exception
      */
     public function run($argv)
@@ -271,8 +272,9 @@ EOT;
     /**
      * Restart the server.
      *
-     * @return void
      * @throws \Exception
+     *
+     * @return void
      */
     public function restart()
     {
