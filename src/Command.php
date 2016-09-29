@@ -95,6 +95,8 @@ class Command
             return;
         }
 
+        echo "Swoole http server started on http://{$this->host}:{$this->port}/\r\n";
+
         $server = new Server($this->host, $this->port);
         $server->setApplication(require $this->bootstrap);
 
