@@ -9,25 +9,68 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
+/**
+ * Class Command
+ * @package Encore\LumenSwoole
+ */
 class Command
 {
+    /**
+     * Pid file.
+     *
+     * @var string
+     */
     protected $pidFile;
 
+    /**
+     * Command options.
+     *
+     * @var array
+     */
     protected $options = [];
 
+    /**
+     * Server host.
+     *
+     * @var string
+     */
     protected $host = '127.0.0.1';
 
+    /**
+     * Server port.
+     *
+     * @var int
+     */
     protected $port = 8083;
 
+    /**
+     * Application bootstrap file.
+     *
+     * @var string
+     */
     protected $bootstrap = 'bootstrap/app.php';
 
+    /**
+     * Http server options.
+     *
+     * @var array
+     */
     protected $serverOptions = [];
 
+    /**
+     * Create a new Command instance.
+     */
     public function __construct()
     {
         $this->registerErrorHandling();
     }
 
+    /**
+     * Main access.
+     *
+     * @param $argv
+     * @return mixed
+     */
     public static function main($argv)
     {
         $command = new static();
@@ -35,6 +78,12 @@ class Command
         return $command->run($argv);
     }
 
+    /**
+     * Run up the server.
+     *
+     * @param string $argv
+     * @throws \Exception
+     */
     public function run($argv)
     {
         if ($this->handleAction($argv)) {
@@ -52,6 +101,8 @@ class Command
     }
 
     /**
+     * Handle command action.
+     *
      * @param array $argv
      *
      * @return bool
@@ -71,6 +122,11 @@ class Command
         return false;
     }
 
+    /**
+     * Handle Command arguments.
+     *
+     * @return bool
+     */
     public function handleArguments()
     {
         $serverOptions = array_map(function ($option) {
@@ -170,6 +226,9 @@ Other options please see http://wiki.swoole.com/wiki/page/274.html.
 EOT;
     }
 
+    /**
+     * Print version string.
+     */
     public function printVersionString()
     {
         echo Server::VERSION, "\r\n";
@@ -213,6 +272,7 @@ EOT;
      * Restart the server.
      *
      * @return void
+     * @throws \Exception
      */
     public function restart()
     {

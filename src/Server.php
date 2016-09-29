@@ -9,8 +9,15 @@ use swoole_http_server as HttpServer;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Class Server
+ * @package Encore\LumenSwoole
+ */
 class Server
 {
+    /**
+     * lumen-swoole version.
+     */
     const VERSION = 'lumen-swoole 0.1.0';
 
     /**
@@ -19,21 +26,29 @@ class Server
     protected $app;
 
     /**
+     * Default host.
+     *
      * @var string
      */
     protected $host = '127.0.0.1';
 
     /**
+     * Default port.
+     *
      * @var int
      */
     protected $port = 8083;
 
     /**
+     * Pid file.
+     *
      * @var string
      */
     protected $pidFile = '';
 
     /**
+     * Http server instance.
+     *
      * @var HttpServer
      */
     protected $httpServer;
@@ -45,9 +60,17 @@ class Server
      */
     protected $options = [];
 
+    /**
+     * Application snapshot.
+     *
+     * @var null
+     */
     protected $appSnapshot = null;
 
     /**
+     * Valid swoole http server options.
+     *
+     * @see http://wiki.swoole.com/wiki/page/274.html
      * @var array
      */
     public static $validServerOptions = [

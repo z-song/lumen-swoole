@@ -107,6 +107,6 @@ Percentage of the requests served within a certain time (ms)
 
 ```
 
-## License
-
-MIT
+License
+------------
+`lumen-swoole` is licensed under [The MIT License (MIT)](LICENSE.txt).
