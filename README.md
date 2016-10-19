@@ -9,7 +9,11 @@ Run [lumen](https://lumen.laravel.com/) on [swoole](http://www.swoole.com/) to g
 ## Installation
 
 ```
+for lumen 5.2
 composer require encore/lumen-swoole dev-master
+
+for lumen 5.3
+composer require encore/lumen-swoole 5.3.x-dev
 ```
 
 ## Usage
