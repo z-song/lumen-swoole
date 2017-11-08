@@ -26,7 +26,6 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
-
 // $app->middleware([
 //    App\Http\Middleware\ExampleMiddleware::class
 // ]);
@@ -34,7 +33,6 @@ $app->singleton(
 // $app->routeMiddleware([
 //     'auth' => App\Http\Middleware\Authenticate::class,
 // ]);
-
 
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
