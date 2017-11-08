@@ -275,6 +275,7 @@ class Server
         }
 
         ob_start();
+
         try {
             $lumenResponse = Application::getInstance()->dispatch($request);
             $lumenResponse->prepare($request);
